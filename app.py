@@ -1,9 +1,4 @@
 import streamlit as st
-import pandas as pd
-from pathlib import Path
-from wave_extractor import extract_wave_data
-import tempfile
-import os
 
 st.set_page_config(page_title="WAVE PDF Extractor", page_icon="📊", layout="wide")
 
@@ -13,6 +8,11 @@ st.write("Upload a DuPont WAVE engineering PDF report to extract structured data
 uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
 
 if uploaded_file is not None:
+    import pandas as pd
+    import tempfile
+    import os
+    from wave_extractor import extract_wave_data
+    
     with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
         tmp_file.write(uploaded_file.getvalue())
         tmp_path = tmp_file.name
@@ -49,7 +49,8 @@ if uploaded_file is not None:
         st.error(f"Error processing PDF: {str(e)}")
     
     finally:
-        os.unlink(tmp_path)
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
 
 else:
     st.info("Please upload a WAVE PDF report to begin extraction.")
