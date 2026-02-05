@@ -4,14 +4,17 @@ Extracts data from DuPont WAVE engineering PDF reports using text-based anchors.
 Resilient to layout changes - does not use hardcoded page numbers.
 """
 
-import fitz
 import pandas as pd
 import re
 import logging
 from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 logger = logging.getLogger(__name__)
+
+def _get_fitz():
+    """Lazy import of fitz to avoid import-time issues."""
+    import fitz
+    return fitz
 
 
 def split_value_unit(text: str) -> tuple:
@@ -261,6 +264,7 @@ def extract_wave_data(pdf_path: str, output_path: str = None) -> pd.DataFrame:
     
     logger.info(f"Opening PDF: {pdf_path}")
     
+    fitz = _get_fitz()
     doc = fitz.open(pdf_path)
     logger.info(f"PDF has {len(doc)} pages")
     
@@ -302,6 +306,8 @@ def extract_wave_data(pdf_path: str, output_path: str = None) -> pd.DataFrame:
 
 if __name__ == "__main__":
     import sys
+    
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
     
     if len(sys.argv) < 2:
         pdf_path = "attached_assets/SFC-CCRO-M120-R85.4-20C_r7_Year_6_SR_wave_extract_2_1770317751580.pdf"
